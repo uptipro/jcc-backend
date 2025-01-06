@@ -7,8 +7,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for all origins
-  app.enableCors();
+  app.enableCors({
+    origin: 'https://jcc-admin.vercel.app', // Replace with your client URL
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
 
   await app.listen(5000);
 }
