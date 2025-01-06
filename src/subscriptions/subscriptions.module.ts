@@ -3,7 +3,7 @@ import { SubscriptionsController } from './subscriptions.controller';
 import { FirestoreService } from 'src/firestore/firestore.service';
 
 @Module({
-    controllers: [SubscriptionsController],
-    providers: [FirestoreService],
+  controllers: [SubscriptionsController],
+  providers: [FirestoreService],
 })
-export class SubscriptionsModule { }
+export class SubscriptionsModule {}

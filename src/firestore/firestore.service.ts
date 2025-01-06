@@ -8,8 +8,9 @@ export class FirestoreService {
 
   constructor() {
     if (admin.apps.length === 0) {
-
-      const firebaseConfig = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+      const firebaseConfig = JSON.parse(
+        process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
+      );
 
       try {
         admin.initializeApp({
@@ -144,7 +145,7 @@ export class FirestoreService {
 
   async getSchedules() {
     const snapshot = await this.firestore.collection('schedules').get();
-    return snapshot.docs.map(doc => doc.data());
+    return snapshot.docs.map((doc) => doc.data());
   }
 
   async getScheduleById(id: string) {
@@ -169,8 +170,10 @@ export class FirestoreService {
   }
 
   async getSubscriptions() {
-    const subscriptions = await this.firestore.collection('subscriptions').get();
-    return subscriptions.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const subscriptions = await this.firestore
+      .collection('subscriptions')
+      .get();
+    return subscriptions.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   }
 
   async getSubscriptionById(id: string) {
@@ -181,5 +184,4 @@ export class FirestoreService {
   async removeSubscription(id: string) {
     await this.firestore.collection('subscriptions').doc(id).delete();
   }
-
 }

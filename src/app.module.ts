@@ -9,8 +9,14 @@ import { SchedulesModule } from './schedules/schedules.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
-  imports: [ImagesModule, AudiosModule, ContactsModule, SchedulesModule, SubscriptionsModule],
+  imports: [
+    ImagesModule,
+    AudiosModule,
+    ContactsModule,
+    SchedulesModule,
+    SubscriptionsModule,
+  ],
   controllers: [AppController],
   providers: [AppService, FirestoreService],
 })
-export class AppModule { }
+export class AppModule {}

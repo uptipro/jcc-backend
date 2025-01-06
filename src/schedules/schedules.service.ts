@@ -6,7 +6,7 @@ export class SchedulesService {
 
   async createSchedule(schedule: any) {
     const newSchedule = { id: Date.now().toString(), ...schedule };
-    console.log(schedule)
+    console.log(schedule);
     this.schedules.push(newSchedule);
     return newSchedule;
   }

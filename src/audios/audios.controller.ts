@@ -13,16 +13,21 @@ import { FirebaseStorageService } from 'src/firebase-storage/firebase-storage.se
 
 @Controller('audios')
 export class AudiosController {
-  constructor(private readonly firebaseStorageService: FirebaseStorageService) { }
+  constructor(
+    private readonly firebaseStorageService: FirebaseStorageService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('audio'))
   async uploadAudio(
     @UploadedFile() file: Express.Multer.File,
-    @Body('fileName') fileName: string // Receive file name from frontend
+    @Body('fileName') fileName: string, // Receive file name from frontend
   ) {
     try {
-      const fileUrl = await this.firebaseStorageService.uploadFile(file, 'audio');
+      const fileUrl = await this.firebaseStorageService.uploadFile(
+        file,
+        'audio',
+      );
       return { message: 'Audio uploaded successfully', fileName, fileUrl };
     } catch (error) {
       console.error('Error uploading audio:', error);
@@ -42,18 +47,26 @@ export class AudiosController {
         const fileNameWithIdAndExt = decodedUrl.split('/').pop();
 
         // Extract the file name without the ID and extension
-        const fileName = fileNameWithIdAndExt.split('-').slice(5, fileNameWithIdAndExt.length - 1).join('-').split('.mp3')[0].split('-').join(' ');
+        const fileName = fileNameWithIdAndExt
+          .split('-')
+          .slice(5, fileNameWithIdAndExt.length - 1)
+          .join('-')
+          .split('.mp3')[0]
+          .split('-')
+          .join(' ');
 
         return fileName;
       }
-
 
       return files.map((file) => ({
         name: getFileName(file.split('/').pop()), // Extract file name
         url: file,
       }));
     } catch (error) {
-      return { message: 'Error fetching audios', error: (error as any).message };
+      return {
+        message: 'Error fetching audios',
+        error: (error as any).message,
+      };
     }
   }
 
