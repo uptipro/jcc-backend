@@ -8,11 +8,8 @@ export class FirestoreService {
 
   constructor() {
     if (admin.apps.length === 0) {
-      const decodedKey = Buffer.from(
-        process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
-        'base64',
-      ).toString('utf-8');
-      const firebaseConfig = JSON.parse(decodedKey);
+
+      const firebaseConfig = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 
       try {
         admin.initializeApp({
@@ -138,4 +135,51 @@ export class FirestoreService {
       throw new Error('Failed to send email reply');
     }
   }
+
+  async saveSchedule(scheduleData: any) {
+    const scheduleRef = this.firestore.collection('schedules').doc();
+    await scheduleRef.set({ id: scheduleRef.id, ...scheduleData });
+    return { id: scheduleRef.id, ...scheduleData };
+  }
+
+  async getSchedules() {
+    const snapshot = await this.firestore.collection('schedules').get();
+    return snapshot.docs.map(doc => doc.data());
+  }
+
+  async getScheduleById(id: string) {
+    const doc = await this.firestore.collection('schedules').doc(id).get();
+    if (!doc.exists) throw new Error('Schedule not found');
+    return doc.data();
+  }
+
+  async updateSchedule(id: string, updateData: any) {
+    const scheduleRef = this.firestore.collection('schedules').doc(id);
+    await scheduleRef.update(updateData);
+    const updatedDoc = await scheduleRef.get();
+    return updatedDoc.data();
+  }
+
+  async deleteSchedule(id: string) {
+    await this.firestore.collection('schedules').doc(id).delete();
+  }
+
+  async saveSubscription(email: string) {
+    await this.firestore.collection('subscriptions').add({ email });
+  }
+
+  async getSubscriptions() {
+    const subscriptions = await this.firestore.collection('subscriptions').get();
+    return subscriptions.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  async getSubscriptionById(id: string) {
+    const doc = await this.firestore.collection('subscriptions').doc(id).get();
+    return doc.data();
+  }
+
+  async removeSubscription(id: string) {
+    await this.firestore.collection('subscriptions').doc(id).delete();
+  }
+
 }

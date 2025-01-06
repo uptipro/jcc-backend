@@ -88,4 +88,20 @@ export class FirebaseStorageService {
       throw new Error('Unable to fetch files from Firebase Storage');
     }
   }
+
+  // Delete a file from Firebase Storage
+  async deleteFile(fileName: string, type: 'image' | 'audio'): Promise<void> {
+    const bucket = admin.storage().bucket('hr-dashboard-18e9e.appspot.com');
+    const directory = type === 'image' ? 'jcc/images' : 'jcc/audios';
+    const filePath = `${directory}/${fileName}`;
+
+    try {
+      const file = bucket.file(filePath);
+      await file.delete();
+      console.log(`File ${filePath} deleted successfully.`);
+    } catch (error) {
+      console.error(`Error deleting file ${filePath}:`, error);
+      throw new Error(`Failed to delete file: ${fileName}`);
+    }
+  }
 }
