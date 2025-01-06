@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'https://jcc-admin.vercel.app', // Replace with your client URL
+    origin: ['https://jcc-admin.vercel.app', 'https://rccg-jcc.vercel.app'], // Replace with your client URLs
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
