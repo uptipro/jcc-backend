@@ -24,21 +24,54 @@ export class ImagesController {
   async getImages() {
     try {
       const files = await this.firebaseStorageService.listFiles('image');
-      return files;
+      function getFileNameFromUrl(url) {
+        // Split the URL by '/' and get the last part
+        var parts = url.split('/');
+        var fileNameWithToken = parts[parts.length - 1];
+
+        // Split the file name and token by '?' and take the first part (file name)
+        var tempName = fileNameWithToken.split('?')[0];
+
+        var fileName = tempName.split('%')[2];
+
+        if (fileName.startsWith('2F')) {
+          fileName = fileName.substring(2);
+        }
+
+        return fileName;
+      }
+      console.log(getFileNameFromUrl(files[0]));
+      return files.map((file) => ({
+        id: getFileNameFromUrl(file),
+        url: file,
+      }));
     } catch (error) {
       console.error('Error fetching images:', error);
       throw new HttpException('Error fetching images', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Delete(':name')
-  async deleteImage(@Param('name') fileName: string) {
+  @Delete(':id')
+  async deleteImage(@Param('id') fileName: string) {
+    console.log(fileName);
     try {
+      const files = await this.firebaseStorageService.listFiles('image');
+
+      // Find the file URL that matches the given name
+      const targetFile = files.find((file) =>
+        decodeURIComponent(file).includes(fileName)
+      );
+
+      if (!targetFile) {
+        return { message: `File with name "${fileName}" not found.` };
+      }
+
+      // Use the full path to delete the file
       await this.firebaseStorageService.deleteFile(fileName, 'image');
       return { message: 'Image deleted successfully' };
     } catch (error) {
       console.error('Error deleting image:', error);
-      throw new HttpException('Error deleting image', HttpStatus.INTERNAL_SERVER_ERROR);
+      return { message: 'Error deleting image', error: (error as any).message };
     }
   }
 }

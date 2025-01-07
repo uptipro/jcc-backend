@@ -1,32 +1,25 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
-import { SchedulesService } from './schedules.service';
+import { FirestoreService } from 'src/firestore/firestore.service';
 
 @Controller('schedules')
 export class SchedulesController {
-  constructor(private readonly schedulesService: SchedulesService) {}
+  constructor(private firestoreService: FirestoreService) { }
 
   @Post()
   async createSchedule(
-    @Body()
-    body: {
-      title: string;
-      description: string;
-      date: string;
-      time: string;
-      color: string;
-    },
+    @Body() body: { title: string; description: string; startTime: string; endTime: string; location: string },
   ) {
-    const schedule = await this.schedulesService.createSchedule(body);
-    return { message: 'Schedule created successfully', schedule };
+    const schedule = await this.firestoreService.saveSchedule(body);
+    return { message: 'Schedule created successfully', data: schedule };
   }
 
   @Get()
   async getSchedules() {
-    return await this.schedulesService.getSchedules();
+    return await this.firestoreService.getSchedules();
   }
 
   @Get(':id')
   async getScheduleById(@Param('id') id: string) {
-    return await this.schedulesService.getScheduleById(id);
+    return await this.firestoreService.getScheduleById(id);
   }
 }

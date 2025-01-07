@@ -39,6 +39,7 @@ export class AudiosController {
   async getAudios() {
     try {
       const files = await this.firebaseStorageService.listFiles('audio');
+      console.log(files)
       const getFileName = (url: string) => {
         const decodedUrl = decodeURIComponent(url);
         const fileNameWithIdAndExt = decodedUrl.split('/').pop();
@@ -53,7 +54,18 @@ export class AudiosController {
         return fileName || 'Unknown';
       };
 
+      function getFileNameFromUrl(url) {
+        // Split the URL by '/' and get the last part 
+        var parts = url.split('/');
+        var fileNameWithToken = parts[parts.length - 1];
+
+        // Split the file name and token by '?' and take the first part (file name) 
+        var fileName = fileNameWithToken.split('?')[0];
+        return fileName;
+      }
+
       return files.map((file) => ({
+        id: getFileNameFromUrl(file),
         name: getFileName(file),
         url: file,
       }));
@@ -65,13 +77,28 @@ export class AudiosController {
     }
   }
 
-  @Delete(':name')
-  async deleteAudio(@Param('name') fileName: string) {
+  @Delete(':id')
+  async deleteAudio(@Param('id') fileName: string) {
     try {
-      await this.firebaseStorageService.deleteFile(fileName, 'audio');
+      const files = await this.firebaseStorageService.listFiles('audio');
+
+      // Find the file URL that matches the given name
+      const targetFile = files.find((file) =>
+        decodeURIComponent(file).includes(fileName)
+      );
+
+      if (!targetFile) {
+        return { message: `File with name "${fileName}" not found.` };
+      }
+
+      // Use the full path to delete the file
+      const response = await this.firebaseStorageService.deleteFile(fileName, 'audio');
+      console.log(response)
       return { message: 'Audio deleted successfully' };
     } catch (error) {
+      console.error('Error deleting audio:', error);
       return { message: 'Error deleting audio', error: (error as any).message };
     }
   }
+
 }

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { SchedulesController } from './schedules.controller';
-import { SchedulesService } from './schedules.service';
+import { FirestoreService } from 'src/firestore/firestore.service';
 
 @Module({
   controllers: [SchedulesController],
-  providers: [SchedulesService],
+  providers: [FirestoreService],
+
 })
-export class SchedulesModule {}
+export class SchedulesModule { }

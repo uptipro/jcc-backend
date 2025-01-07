@@ -91,10 +91,10 @@ export class FirebaseStorageService {
 
   // Delete a file from Firebase Storage
   async deleteFile(fileName: string, type: 'image' | 'audio'): Promise<void> {
+    console.log(fileName);
     const bucket = admin.storage().bucket('hr-dashboard-18e9e.appspot.com');
     const directory = type === 'image' ? 'jcc/images' : 'jcc/audios';
     const filePath = `${directory}/${fileName}`;
-
     try {
       const file = bucket.file(filePath);
       await file.delete();
