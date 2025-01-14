@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Param } from '@nestjs/common';
 import { FirestoreService } from 'src/firestore/firestore.service';
 
 @Controller('schedules')
@@ -21,5 +21,11 @@ export class SchedulesController {
   @Get(':id')
   async getScheduleById(@Param('id') id: string) {
     return await this.firestoreService.getScheduleById(id);
+  }
+
+  @Delete(':id')
+  async deleteSchedule(@Param('id') id: string) {
+    await this.firestoreService.deleteSchedule(id);
+    return { message: 'Schedule deleted successfully' };
   }
 }
