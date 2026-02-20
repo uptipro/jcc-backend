@@ -3,16 +3,25 @@ import { FirestoreService } from 'src/firestore/firestore.service';
 
 @Controller('contacts')
 export class ContactsController {
-  constructor(private firebaseFirestoreService: FirestoreService) {}
+  constructor(private firebaseFirestoreService: FirestoreService) { }
 
   @Post()
   async sendMessage(
-    @Body() body: { name: string; email: string; message: string },
+    @Body()
+    body: {
+      name: string;
+      email: string;
+      message: string;
+      type?: string;
+      churchEmail?: string;
+    },
   ) {
     await this.firebaseFirestoreService.saveMessage(
       body.name,
       body.email,
       body.message,
+      body.type,
+      body.churchEmail,
     );
     return { message: 'Contact message received', data: body };
   }

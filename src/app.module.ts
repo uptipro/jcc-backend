@@ -7,6 +7,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { FirestoreService } from './firestore/firestore.service';
 import { SchedulesModule } from './schedules/schedules.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { TrendingModule } from './trending/trending.module';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     ContactsModule,
     SchedulesModule,
     SubscriptionsModule,
+    TrendingModule,
   ],
   controllers: [AppController],
   providers: [AppService, FirestoreService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -28,7 +28,13 @@ export class FirestoreService {
   }
 
   // Save contact message to Firestore
-  async saveMessage(name: string, email: string, message: string) {
+  async saveMessage(
+    name: string,
+    email: string,
+    message: string,
+    type?: string,
+    churchEmail?: string,
+  ) {
     if (!this.firestore) {
       console.error('Firestore is not initialized.');
       throw new Error('Firestore not initialized.');
@@ -39,9 +45,20 @@ export class FirestoreService {
       name,
       email,
       message,
+      type: type || 'contact_message',
+      churchEmail: churchEmail || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       isReplied: false, // Flag to track whether the message has been replied to
     });
+
+    if (type === 'prayer_request' && churchEmail) {
+      await this.sendEmail(
+        churchEmail,
+        `New Prayer Request from ${name}`,
+        `Name: ${name}\nEmail: ${email}\n\nPrayer Request:\n${message}`,
+      );
+    }
+
     console.log('Message saved to Firestore');
   }
 
@@ -183,5 +200,28 @@ export class FirestoreService {
 
   async removeSubscription(id: string) {
     await this.firestore.collection('subscriptions').doc(id).delete();
+  }
+
+  async saveTrending(content: string) {
+    const trendingRef = this.firestore.collection('trending').doc();
+    const payload = {
+      id: trendingRef.id,
+      content,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    await trendingRef.set(payload);
+    return payload;
+  }
+
+  async getTrending() {
+    const snapshot = await this.firestore
+      .collection('trending')
+      .orderBy('createdAt', 'desc')
+      .get();
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  }
+
+  async removeTrending(id: string) {
+    await this.firestore.collection('trending').doc(id).delete();
   }
 }
