@@ -9,7 +9,7 @@ async function bootstrap() {
 
   // Enable CORS with specific configuration
   app.enableCors({
-    origin: ['https://rccg-jcc.vercel.app', 'https://jcc-admin.vercel.app', 'http://localhost:3000', 'http://localhost:3001'], // Allow requests from your frontend
+    origin: ['https://rccg-jcc.vercel.app', 'https://jcc-admin.vercel.app', 'http://localhost:3000', 'http://localhost:3001', 'https://www.experiencejubilee.org'], // Allow requests from your frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Allowed methods
     credentials: true, // Allow cookies if needed
   });
