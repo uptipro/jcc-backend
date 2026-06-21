@@ -1,26 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
+import { ensureFirebaseInitialized } from '../firebase/firebase-credential';
 
 @Injectable()
 export class FirebaseStorageService {
   constructor() {
-    if (admin.apps.length === 0) {
-      // Decode base64 encoded key from environment variables
-      const decodedKey = Buffer.from(
-        process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
-        'base64',
-      ).toString('utf-8');
-
-      // Parse the JSON string of the Firebase service account
-      const firebaseConfig = JSON.parse(decodedKey);
-
-      // Initialize Firebase Admin SDK
-      admin.initializeApp({
-        credential: admin.credential.cert(firebaseConfig),
-        storageBucket: 'hr-dashboard-18e9e.appspot.com', // Your Firebase storage bucket
-      });
-    }
+    ensureFirebaseInitialized();
   }
 
   // Upload file to Firebase Storage (images and audios in their respective directories)

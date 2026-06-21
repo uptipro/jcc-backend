@@ -1,29 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import nodemailer from 'nodemailer'; // Nodemailer import
+import { ensureFirebaseInitialized } from '../firebase/firebase-credential';
 
 @Injectable()
 export class FirestoreService {
   private firestore: admin.firestore.Firestore;
 
   constructor() {
-    if (admin.apps.length === 0) {
-      const firebaseConfig = JSON.parse(
-        process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
-      );
-
-      try {
-        admin.initializeApp({
-          credential: admin.credential.cert(firebaseConfig),
-        });
-        this.firestore = admin.firestore();
-        console.log('Firestore initialized successfully');
-      } catch (error) {
-        console.error('Error initializing Firebase Admin SDK:', error);
-      }
-    } else {
-      this.firestore = admin.firestore(); // If app is already initialized
-      console.log('Firestore already initialized');
+    try {
+      ensureFirebaseInitialized();
+      this.firestore = admin.firestore();
+      console.log('Firestore initialized successfully');
+    } catch (error) {
+      console.error('Error initializing Firebase Admin SDK:', error);
     }
   }
 
