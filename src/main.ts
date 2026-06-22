@@ -16,6 +16,7 @@ async function bootstrap() {
       'http://localhost:3001',
       'https://www.experiencejubilee.org',
       'https://experiencejubilee.org',
+      'https://admin.experiencejubilee.org',
     ], // Allow requests from your frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Allowed methods
     credentials: true, // Allow cookies if needed
