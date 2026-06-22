@@ -8,15 +8,21 @@ import { FirestoreService } from './firestore/firestore.service';
 import { SchedulesModule } from './schedules/schedules.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TrendingModule } from './trending/trending.module';
+import { DatabaseModule } from './database/database.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { MembersModule } from './members/members.module';
 
 @Module({
   imports: [
+    DatabaseModule,
     ImagesModule,
     AudiosModule,
     ContactsModule,
     SchedulesModule,
     SubscriptionsModule,
     TrendingModule,
+    DepartmentsModule,
+    MembersModule,
   ],
   controllers: [AppController],
   providers: [AppService, FirestoreService],
