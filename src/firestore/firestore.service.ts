@@ -17,6 +17,15 @@ export class FirestoreService {
     }
   }
 
+  private getDb(): admin.firestore.Firestore {
+    if (!this.firestore) {
+      throw new Error(
+        'Firestore is not initialized. Verify FIREBASE_SERVICE_ACCOUNT_KEY is set and that Cloud Firestore is enabled for this Firebase project.',
+      );
+    }
+    return this.firestore;
+  }
+
   // Save contact message to Firestore
   async saveMessage(
     name: string,
@@ -151,7 +160,7 @@ export class FirestoreService {
   }
 
   async getSchedules() {
-    const snapshot = await this.firestore.collection('schedules').get();
+    const snapshot = await this.getDb().collection('schedules').get();
     return snapshot.docs.map((doc) => doc.data());
   }
 
@@ -204,7 +213,7 @@ export class FirestoreService {
   }
 
   async getTrending() {
-    const snapshot = await this.firestore
+    const snapshot = await this.getDb()
       .collection('trending')
       .orderBy('createdAt', 'desc')
       .get();

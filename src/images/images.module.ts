@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ImagesController } from './images.controller';
-import { FirebaseStorageService } from 'src/firebase-storage/firebase-storage.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [ImagesController],
-  providers: [FirebaseStorageService],
+  providers: [CloudinaryService],
 })
 export class ImagesModule {}
