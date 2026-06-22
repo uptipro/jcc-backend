@@ -20,18 +20,33 @@ export interface CloudinaryFile {
 
 @Injectable()
 export class CloudinaryService {
+  private readonly configured: boolean;
+
   constructor() {
     // The SDK auto-configures from the CLOUDINARY_URL env var when present.
     // Otherwise fall back to the individual credential env vars.
     if (process.env.CLOUDINARY_URL) {
       cloudinary.config({ secure: true });
+      this.configured = true;
     } else {
+      const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+      const apiKey = process.env.CLOUDINARY_API_KEY;
+      const apiSecret = process.env.CLOUDINARY_API_SECRET;
       cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
         secure: true,
       });
+      this.configured = Boolean(cloudName && apiKey && apiSecret);
+    }
+  }
+
+  private ensureConfigured(): void {
+    if (!this.configured) {
+      throw new Error(
+        'Cloudinary is not configured. Set CLOUDINARY_URL, or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.',
+      );
     }
   }
 
@@ -50,6 +65,7 @@ export class CloudinaryService {
   }
 
   async uploadFile(file: Express.Multer.File, type: MediaType): Promise<string> {
+    this.ensureConfigured();
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -61,7 +77,9 @@ export class CloudinaryService {
         },
         (error, response) => {
           if (error || !response) {
-            return reject(error ?? new Error('Cloudinary upload returned no response'));
+            return reject(
+              new Error(this.toMessage(error) ?? 'Cloudinary upload returned no response'),
+            );
           }
           resolve(response);
         },
@@ -73,19 +91,18 @@ export class CloudinaryService {
   }
 
   async listFiles(type: MediaType): Promise<CloudinaryFile[]> {
+    this.ensureConfigured();
     const resourceType = this.resourceType(type);
     const prefix = this.folder(type);
     const resources: CloudinaryResource[] = [];
     let nextCursor: string | undefined;
 
     do {
-      const response: ResourceApiResponse = await cloudinary.api.resources({
-        type: 'upload',
+      const response: ResourceApiResponse = await this.fetchResources(
+        resourceType,
         prefix,
-        resource_type: resourceType,
-        max_results: 500,
-        next_cursor: nextCursor,
-      });
+        nextCursor,
+      );
       resources.push(...response.resources);
       nextCursor = response.next_cursor;
     } while (nextCursor);
@@ -98,6 +115,7 @@ export class CloudinaryService {
   }
 
   async deleteFile(identifier: string, type: MediaType): Promise<void> {
+    this.ensureConfigured();
     const resourceType = this.resourceType(type);
 
     // Frontends may pass either the slash-free id, the URL's last segment
@@ -138,17 +156,44 @@ export class CloudinaryService {
     let nextCursor: string | undefined;
 
     do {
-      const response: ResourceApiResponse = await cloudinary.api.resources({
+      const response: ResourceApiResponse = await this.fetchResources(
+        resourceType,
+        prefix,
+        nextCursor,
+      );
+      resources.push(...response.resources);
+      nextCursor = response.next_cursor;
+    } while (nextCursor);
+
+    return resources;
+  }
+
+  private async fetchResources(
+    resourceType: 'image' | 'video',
+    prefix: string,
+    nextCursor: string | undefined,
+  ): Promise<ResourceApiResponse> {
+    try {
+      return await cloudinary.api.resources({
         type: 'upload',
         prefix,
         resource_type: resourceType,
         max_results: 500,
         next_cursor: nextCursor,
       });
-      resources.push(...response.resources);
-      nextCursor = response.next_cursor;
-    } while (nextCursor);
+    } catch (error) {
+      throw new Error(this.toMessage(error) ?? 'Cloudinary request failed');
+    }
+  }
 
-    return resources;
+  /** Cloudinary errors are often `{ error: { message } }` rather than Error instances. */
+  private toMessage(error: unknown): string | undefined {
+    if (!error) return undefined;
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'object') {
+      const maybe = error as { message?: string; error?: { message?: string } };
+      return maybe.error?.message ?? maybe.message;
+    }
+    return String(error);
   }
 }

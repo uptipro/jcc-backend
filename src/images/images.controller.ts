@@ -39,7 +39,7 @@ export class ImagesController {
     } catch (error) {
       console.error('Error fetching images:', error);
       throw new HttpException(
-        'Error fetching images',
+        `Error fetching images: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
