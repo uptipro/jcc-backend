@@ -7,9 +7,11 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { formatId, nextCounter } from '../database/ids';
+import { AuthGuard } from '../auth/auth.guard';
 
 interface MemberRow {
   id: string;
@@ -36,6 +38,7 @@ export class MembersController {
   constructor(private readonly db: DatabaseService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   async list() {
     const { rows } = await this.db.getPool().query<MemberRow>(
       `SELECT id, personal_details, church_details, created_at, updated_at
@@ -51,6 +54,7 @@ export class MembersController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async upsert(@Body() body: MemberBody) {
     const personalDetails = body?.personalDetails;
     const churchDetails = body?.churchDetails;
@@ -94,6 +98,7 @@ export class MembersController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
     const { rowCount } = await this.db
       .getPool()

@@ -7,15 +7,18 @@ import {
   Delete,
   Param,
   Body,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('audios')
 export class AudiosController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Post('upload')
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('audio'))
   async uploadAudio(
     @UploadedFile() file: Express.Multer.File,
@@ -48,6 +51,7 @@ export class AudiosController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async deleteAudio(@Param('id') fileName: string) {
     try {
       await this.cloudinaryService.deleteFile(fileName, 'audio');

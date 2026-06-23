@@ -74,6 +74,16 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           key  TEXT PRIMARY KEY,
           seq  INTEGER NOT NULL DEFAULT 0
         );
+
+        CREATE TABLE IF NOT EXISTS admins (
+          id            TEXT PRIMARY KEY,
+          email         TEXT NOT NULL UNIQUE,
+          email_lower   TEXT NOT NULL UNIQUE,
+          name          TEXT,
+          password_hash TEXT NOT NULL,
+          created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
       `);
     } finally {
       client.release();

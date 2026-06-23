@@ -11,10 +11,12 @@ import { TrendingModule } from './trending/trending.module';
 import { DatabaseModule } from './database/database.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { MembersModule } from './members/members.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     DatabaseModule,
+    AuthModule,
     ImagesModule,
     AudiosModule,
     ContactsModule,

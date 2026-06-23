@@ -8,9 +8,11 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { formatId, nextCounter } from '../database/ids';
+import { AuthGuard } from '../auth/auth.guard';
 
 interface DepartmentRow {
   id: string;
@@ -35,6 +37,7 @@ export class DepartmentsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body('name') rawName: string) {
     const name = String(rawName ?? '').trim();
     if (!name) {
@@ -69,6 +72,7 @@ export class DepartmentsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async update(@Param('id') id: string, @Body('name') rawName: string) {
     const name = String(rawName ?? '').trim();
     if (!name) {
@@ -102,6 +106,7 @@ export class DepartmentsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
     const { rowCount } = await this.db
       .getPool()

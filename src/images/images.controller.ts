@@ -8,15 +8,18 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('images')
 export class ImagesController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Post('upload')
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     try {
@@ -46,6 +49,7 @@ export class ImagesController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async deleteImage(@Param('id') fileName: string) {
     try {
       await this.cloudinaryService.deleteFile(fileName, 'image');
