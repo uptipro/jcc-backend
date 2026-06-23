@@ -217,7 +217,18 @@ export class FirestoreService {
       .collection('trending')
       .orderBy('createdAt', 'desc')
       .get();
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      const createdAt = data.createdAt;
+      return {
+        ...data,
+        id: doc.id,
+        createdAt:
+          createdAt instanceof admin.firestore.Timestamp
+            ? createdAt.toDate().toISOString()
+            : (createdAt ?? null),
+      };
+    });
   }
 
   async removeTrending(id: string) {
